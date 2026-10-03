@@ -9,9 +9,6 @@ Default compiler is musl-gcc (primary target for ODS-OS):
 
     make
 
-Override for portability check with glibc:
-
-    make CC=gcc
 
 All tools are built to `bin/` with `-static` linking by default.
 
