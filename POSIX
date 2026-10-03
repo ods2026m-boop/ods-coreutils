@@ -1,0 +1,135 @@
+ODS-OS coreutils POSIX Compliance Statement
+============================================
+
+This document lists the exact standard headers and system calls used by each
+tool in ods-coreutils. All tools target POSIX.1-2008 (IEEE Std 1003.1-2008)
+with XSI extensions, and are built with:
+
+  -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700
+
+Global headers used across multiple tools:
+  <stdio.h>, <stdlib.h>, <string.h>
+
+Tier 1 — trivial, no filesystem writes
+---------------------------------------
+
+echo (src/echo.c)
+  Headers: <stdio.h>
+  Syscalls: none
+
+pwd (src/pwd.c)
+  Headers: <stdio.h>, <unistd.h>
+  Syscalls: getcwd()
+
+cat (src/cat.c)
+  Headers: <stdio.h>, <stdlib.h>
+  Syscalls: none (uses stdio fopen/fread/fwrite/fclose)
+
+Tier 2 — basic filesystem read
+-------------------------------
+
+head (src/head.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>
+  Syscalls: none (uses stdio)
+
+tail (src/tail.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>
+  Syscalls: none (uses stdio fseek/ftell)
+
+ls (src/ls.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <dirent.h>, <sys/stat.h>,
+           <pwd.h>, <grp.h>, <time.h>
+  Syscalls: none (uses opendir/readdir/closedir, stat)
+
+du (src/du.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <dirent.h>, <sys/stat.h>, <unistd.h>
+  Syscalls: lstat()
+
+df (src/df.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/statvfs.h>
+  Syscalls: statvfs()
+
+Tier 3 — filesystem writes / structure
+---------------------------------------
+
+mkdir (src/mkdir.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>, <errno.h>
+  Syscalls: mkdir()
+
+rmdir (src/rmdir.c)
+  Headers: <stdio.h>, <unistd.h>
+  Syscalls: rmdir()
+
+touch (src/touch.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>, <fcntl.h>,
+           <unistd.h>, <utime.h>, <time.h>
+  Syscalls: stat(), open(), close(), utime()
+
+cp (src/cp.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>, <fcntl.h>,
+           <unistd.h>, <dirent.h>, <errno.h>
+  Syscalls: open(), read(), write(), close(), stat(), mkdir(),
+            opendir(), readdir(), closedir()
+
+mv (src/mv.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>, <fcntl.h>, <unistd.h>, <errno.h>
+  Syscalls: rename(), stat(), open(), read(), write(), close(), unlink()
+
+rm (src/rm.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>, <unistd.h>,
+           <dirent.h>, <errno.h>
+  Syscalls: lstat(), unlink(), rmdir(), opendir(), readdir(), closedir()
+
+chmod (src/chmod.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <sys/stat.h>
+  Syscalls: chmod(), stat()
+
+chown (src/chown.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <pwd.h>, <grp.h>, <unistd.h>
+  Syscalls: chown()
+
+Tier 4 — search / text processing
+-----------------------------------
+
+grep (src/grep.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <regex.h>, <dirent.h>, <sys/stat.h>
+  Syscalls: none (uses regcomp/regexec from POSIX regex library)
+
+find (src/find.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <ftw.h>, <sys/stat.h>
+  Syscalls: nftw()
+
+tree (src/tree.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <dirent.h>, <sys/stat.h>
+  Syscalls: none (uses opendir/readdir/closedir, stat, scandir)
+
+Tier 5 — process monitoring / control
+---------------------------------------
+
+ps (src/ps.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <dirent.h>, <unistd.h>
+  Syscalls: none (reads /proc filesystem via opendir/readdir/fopen/fgets)
+
+top (src/top.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <dirent.h>, <unistd.h>,
+           <termios.h>, <sys/select.h>, <sys/ioctl.h>, <time.h>
+  Syscalls: tcgetattr(), tcsetattr(), nanosleep(), select(), read(),
+            ioctl()
+
+kill (src/kill.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <signal.h>, <strings.h>, <unistd.h>
+  Syscalls: kill()
+
+Tier 6 — editor / pager
+------------------------
+
+less (src/less.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <regex.h>, <termios.h>,
+           <unistd.h>, <sys/ioctl.h>, <sys/select.h>
+  Syscalls: tcgetattr(), tcsetattr(), read(), ioctl(), select(),
+            regcomp/regexec()
+
+nano (src/nano.c)
+  Headers: <stdio.h>, <stdlib.h>, <string.h>, <termios.h>, <unistd.h>,
+           <sys/ioctl.h>, <sys/select.h>
+  Syscalls: tcgetattr(), tcsetattr(), read(), ioctl()
